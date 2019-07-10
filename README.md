@@ -17,6 +17,8 @@ For this project, a cross-country road trip video is selected and water tower is
 
 The video used was shot using the Garmin Virb Ultra 30 camera, which records GPS information.  The code extracts frames from a 30fps video and saves them as JPG files.  Given the length of the video (11 hours showing over 3,000 miles of driving from Washington, DC to Seattle, WA), only one frame per second was captured to minimize processing time.  Still, the code was run on a AWS EC2 instance and produced nearly 40,000 images totaling 11.9GB of disk space.  The video was captured in full HD format, so the resulting resolution of each image is 1920x1080.
 
+The code was run on a AWS EC2 instance, and the full AWS implementation pipeline can be found in the "AWS workflow" PDF document above.
+
 An example of output video frame file (with a white water tower shown) is provided below:
 
 ![video frame example](./Images/frame12350.jpg)
