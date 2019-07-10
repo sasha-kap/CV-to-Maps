@@ -5,7 +5,7 @@ Travel Video Object Detection with OSM-Based Evaluation
 
 The purpose of this project is to create a way to automatically geolocate objects of interest in a dashcam camera video, so they could be added to the OpenStreetMap (OSM) database without manual geotagging by OSM volunteers.
 
-The project involves a pipeline that processes a dashcam camera video that has every video frame geotagged by the camera's GPS functionality, identifies all objects of interest in that video, geolocates those objects by assigning latitude and longitude values to each of those objects, and evaluates the results of geolocation against existing OSM data.
+The project involves a pipeline that processes a dashcam camera video that has every video frame geotagged by the camera's GPS functionality, identifies all objects of interest across all video frames, geolocates those objects by assigning latitude and longitude values to each of those objects, and evaluates the results of geolocation against existing OSM data.
 
 For this project, a cross-country road trip video is selected and water tower is selected as the object of interest.  The input video is required for every frame to include both the GPS coordinates and the heading (i.e., viewing angle) of the camera.
 
@@ -29,11 +29,10 @@ As can be seen in the image above, each frame contains a geolocation stamp in th
 
 3. GPS Text Recognition - convert images to text
 
-**CODES:**
-AWS_Rekognition_OCR.py
+**CODE 1:** AWS_Rekognition_OCR.py
 - Code for creating a dictionary of text detected on video frames (both GPS stamp and location/time/heading stamp) using AWS Rekognition service (not used due to prohibitive cost)
 
-GPS_Text_Recognition.ipynb
+**CODE 2:** GPS_Text_Recognition.ipynb
 - Reads GPS stamps from gps_box folder and uses the Pytesseract library to convert images to text
 - Creates image_dict_final dictionary of the form {‘frameXXXXX’: {‘Lat’: xx.xxxxx, ‘Lon’: xx.xxxxx}}
 - Saves dictionary to image_txt.json file (as JSON)
@@ -42,7 +41,7 @@ GPS_Text_Recognition.ipynb
 
 **CODE:** None
 
-Used [OSM Overpass Turbo](http://overpass-turbo.eu/) website to pass queries to Overpass API and download coordinates of water towers in the 12 U.S. states covered by the cross-country drive.  Overpass API is a read-only API that serves up custom selected parts of the OSM map data.  It acts as a database over the web: the client sends a query to the API and gets back the data set that corresponds to the query.  Overpass API is optimized for data consumers that need a few elements within a glimpse or up to roughly 10 million elements in some minutes, both selected by search criteria like e.g. location, type of objects, tag properties, proximity, or combinations of them (source: https://wiki.openstreetmap.org/wiki/Overpass_API).
+I used the [OSM Overpass Turbo](http://overpass-turbo.eu/) website to pass queries to Overpass API and download coordinates of water towers in the 12 U.S. states covered by the cross-country drive.  Overpass API is a read-only API that serves up custom selected parts of the OSM map data.  It acts as a database over the web: the client sends a query to the API and gets back the data set that corresponds to the query.  Overpass API is optimized for data consumers that need a few elements within a glimpse or up to roughly 10 million elements in some minutes, both selected by search criteria like e.g. location, type of objects, tag properties, proximity, or combinations of them (source: https://wiki.openstreetmap.org/wiki/Overpass_API).
 
 Below is a sample query used to retrieve the data for Washington State:
 
@@ -67,7 +66,7 @@ out body;
 out skel qt;
 ```
 
-Data was downloaded in GeoJSON file format.  The output files can be obtained from the GeoJSONs folder.
+Data was downloaded in GeoJSON file format.  The output files can be obtained from (and viewed on a map in) the "state_water_towers" folder.
 
 5. Geospatial processing - load frame and tower geolocation data to PostgreSQL
 
@@ -80,7 +79,7 @@ Data was downloaded in GeoJSON file format.  The output files can be obtained fr
 
 6. Object detection/image segmentation
 
-I first used [VIA (VGG Image Annotator)](www.robots.ox.ac.uk/~vgg/software/via) to annotate water tower images available for academic research and education purposes from the [Places365](http://places2.csail.mit.edu/download.html) dataset.  Places contains more than 10 million images comprising 400+ unique scene categories. The dataset features 5000 to 30,000 training images per class, consistent with real-world frequencies of occurrence. Using convolutional neural networks (CNN), Places dataset allows learning of deep scene features for various scene recognition tasks, with the goal to establish new state-of-the-art performances on scene-centric benchmarks.
+I first used [VIA (VGG Image Annotator)](http://www.robots.ox.ac.uk/~vgg/software/via) to annotate water tower images available for academic research and education purposes from the [Places365](http://places2.csail.mit.edu/download.html) dataset.  Places contains more than 10 million images comprising 400+ unique scene categories. The dataset features 5000 to 30,000 training images per class, consistent with real-world frequencies of occurrence. Using convolutional neural networks (CNN), Places dataset allows learning of deep scene features for various scene recognition tasks, with the goal to establish new state-of-the-art performances on scene-centric benchmarks.
 
 I downloaded the water tower images (of which there are 17,696 different images available) in the high-resolution format per instructions provided at http://data.csail.mit.edu/places/places365/train_large_split/link.txt.  These images have been resized to have a minimum dimension of 512 while preserving the aspect ratio of the image.
 
@@ -126,5 +125,18 @@ Next, I used AWS to run splash code: `python3 tower.py splash --weights=/path/to
 
 8.  Geolocation via triangulation
 
-**CODE:** CV-to-Maps/Create_detection_input_file.ipynb
+**CODE 1:** CV-to-Maps/Create_detection_input_file.ipynb
 - Reads info from image_txt.json (Lat/Lon values for each video frame), depth_values dictionary (created in save_depth_estimates.ipynb), and heading/bearing values to create a combined detection_input CSV file with all of the necessary information for each image
+
+**CODE 2:** object_mapping.py (called by Object_mapping.ipynb)
+- Modified implementation of the MRF-based tringulation procedure introduced in "Automatic Discovery and Geotagging of Objects from Street View Imagery" by V. A. Krylov, E. Kenny, R. Dahyot.  https://arxiv.org/abs/1708.08417
+- Object_mapping.ipynb also calls the object_mapping.py script within a loop to generate multiple detected tower positions that are then averaged.
+
+**CODE 3:** Check_Preliminary_Object_Positions.ipynb
+- Uses modified GoogleMapPlotter class from the gmplot package to plot initial tower positions calculated from camera position, camera bearing, and depth_estimates
+
+**CODE 4:** Plot_Coordinates_Using_Google_Maps.ipynb
+- Uses modified GoogleMapPlotter class from the gmplot package to plot both the actual positions of the camera as the car was driving and the geotagged position of the tower
+
+**CODE 5:** Compare_Geotagging_to_OSM.ipynb
+- Queries OSM-tagged (true) coordinates of water tower that was used in geotagging code, then uses modified GoogleMapPlotter class from the gmplot package to plot the true water tower coordinates (from OSM), coordinates of the camera positions as the car was driving, tower positions calculated from camera position, camera bearing, and depth_estimates, and the averaged tower position calculated by running the detection code multiple times.
