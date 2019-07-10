@@ -11,7 +11,7 @@ For this project, a cross-country road trip video is selected and water tower is
 
 ## Workflow
 
-1. Video Processing - extract frames from video
+1. **Video Processing - extract frames from video**
 
 **CODE:** Video_Processing.py
 
@@ -23,13 +23,13 @@ An example of output video frame file (with a white water tower shown) is provid
 
 ![video frame example](./Images/frame12350.jpg)
 
-2. Image Processing - crop and save text boxes from each frame image
+2. **Image Processing - crop and save text boxes from each frame image**
 
 **CODE:** Image_Processing.py
 
 As can be seen in the image above, each frame contains a geolocation stamp in the upper-right corner and a place/elevation/date/time/heading stamp in the lower-left corner.  The code separately crops and saves the two corners of each frame and saves them to separate GPS box folder (geolocation stamps) and Location box folder (place/time/heading stamps).
 
-3. GPS Text Recognition - convert images to text
+3. **GPS Text Recognition - convert images to text**
 
 **CODE 1:** AWS_Rekognition_OCR.py
 - Code for creating a dictionary of text detected on video frames (both GPS stamp and location/time/heading stamp) using AWS Rekognition service (not used due to prohibitive cost)
@@ -39,7 +39,7 @@ As can be seen in the image above, each frame contains a geolocation stamp in th
 - Creates image_dict_final dictionary of the form {‘frameXXXXX’: {‘Lat’: xx.xxxxx, ‘Lon’: xx.xxxxx}}
 - Saves dictionary to image_txt.json file (as JSON)
 
-4. Obtain OSM data for evaluation
+4. **Obtain OSM data for evaluation**
 
 **CODE:** None
 
@@ -70,7 +70,7 @@ out skel qt;
 
 Data was downloaded in GeoJSON file format.  The output files can be obtained from (and viewed on a map in) the "state_water_towers" folder.
 
-5. Geospatial processing - load frame and tower geolocation data to PostgreSQL
+5. **Geospatial processing - load frame and tower geolocation data to PostgreSQL**
 
 **CODE:** Geospatial.ipynb
 - Converts image_txt.json with lat-lon coordinates of video frames into a GeoJSON file
@@ -79,7 +79,11 @@ Data was downloaded in GeoJSON file format.  The output files can be obtained fr
 - Calculates and adds centroid of each tower polygon to the table
 - Creates new table (nneighbors) that assigns the ID of the closest water tower for every video frame, with corresponding distance value (using PostGIS functionality)
 
-6. Object detection/image segmentation
+After calculating the centroids of each tower, a map like the one shown below can be produced that displays the coordinates of both the water towers (as recorded in OSM) and each of the video frames.
+
+![map](./Images/QGIS_Map.png)
+
+6. **Object detection/image segmentation**
 
 I first used [VIA (VGG Image Annotator)](http://www.robots.ox.ac.uk/~vgg/software/via) to annotate water tower images available for academic research and education purposes from the [Places365](http://places2.csail.mit.edu/download.html) dataset.  Places contains more than 10 million images comprising 400+ unique scene categories. The dataset features 5000 to 30,000 training images per class, consistent with real-world frequencies of occurrence. Using convolutional neural networks (CNN), Places dataset allows learning of deep scene features for various scene recognition tasks, with the goal to establish new state-of-the-art performances on scene-centric benchmarks.
 
@@ -104,11 +108,11 @@ augmentation = imgaug.augmenters.Sometimes(0.5, [
     imgaug.augmenters.GaussianBlur(sigma=(0.0, 5.0))
 ]
 ```
-The code was run on a p2.xlarge EC2 instance (11.75 ECUs, 4 vCPUs, 2.7 GHz, E5-2686v4, 61 GiB memory).
+The code was run on a AWS p2.xlarge EC2 instance (11.75 ECUs, 4 vCPUs, 2.7 GHz, E5-2686v4, 61 GiB memory).
 
 Next, I used AWS to run splash code: `python3 tower.py splash --weights=/path/to/weights/file.h5 --image=<URL or path to file>` to save object detections.
 
-Below is an example of splash applied to image following image segmentation/object detection step:
+Below is an example of splash applied to an image following the image segmentation/object detection step:
 
 ![splash example](./Images/frame12350_splash.jpg)
 
@@ -121,7 +125,7 @@ Below is an example of splash applied to image following image segmentation/obje
   - dictionary saved to masks_dict.pkl file
   - Used AWS to run code: `python3 get_pixels_of_detections.py --image_list='/home/ec2-user/dltraining/Mask_RCNN/samples/water_towers/splash_list.txt'`
 
-7.  Depth prediction
+7.  **Depth prediction**
 
 **CODE 1:** Mask_RCNN/samples/water_towers/load_resize_detections_and_depth_predictions.ipynb
 - Exploration notebook investigating how to work with object detection (mask) and depth prediction arrays
@@ -129,7 +133,7 @@ Below is an example of splash applied to image following image segmentation/obje
 **CODE 2:** Mask_RCNN/samples/water_towers/save_depth_estimates.ipynb
 - loads dictionary of masks (pixel locations of correctly identified towers), identifies locations (indices) of pixels where splash is located, runs depth detection code on that image (Github/FCRN-DepthPrediction/predict_nomain.py), accesses the pixels of mask in the depth prediction array and computes 10% trimmed mean over those depth values
 
-8.  Geolocation via triangulation
+8.  **Geolocation via triangulation**
 
 **CODE 1:** CV-to-Maps/Create_detection_input_file.ipynb
 - Reads info from image_txt.json (Lat/Lon values for each video frame), depth_values dictionary (created in save_depth_estimates.ipynb), and heading/bearing values to create a combined detection_input CSV file with all of the necessary information for each image
