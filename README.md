@@ -106,6 +106,10 @@ The code was run on a p2.xlarge EC2 instance (11.75 ECUs, 4 vCPUs, 2.7 GHz, E5-2
 
 Next, I used AWS to run splash code: `python3 tower.py splash --weights=/path/to/weights/file.h5 --image=<URL or path to file>` to save object detections.
 
+Below is an example of splash applied to image following image segmentation/object detection step:
+
+![splash example](./Images/frame12350_splash.jpg)
+
 **CODE 2:** Mask_RCNN/samples/water_towers/save_splash_imgs.py
 - Uses list of detections (results.pkl) and path to all images that went through detection to identify just the images that had at least one object detected and save the splash version of those images
 - Code was run on AWS: `python3 save_splash_imgs.py --image='/home/ec2-user/dltraining/frames_1ps'`
