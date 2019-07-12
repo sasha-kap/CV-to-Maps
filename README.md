@@ -150,3 +150,15 @@ Below is an example of splash applied to an image following the image segmentati
 
 **CODE 5:** Compare_Geotagging_to_OSM.ipynb
 - Queries OSM-tagged (true) coordinates of water tower that was used in geotagging code, then uses modified GoogleMapPlotter class from the gmplot package to plot the true water tower coordinates (from OSM), coordinates of the camera positions as the car was driving, tower positions calculated from camera position, camera bearing, and depth_estimates, and the averaged tower position calculated by running the detection code multiple times.
+
+---
+
+## References:
+
+1. Abdulla, W., Mask R-CNN for object detection and instance segmentation on Keras and TensorFlow, (2017), GitHub repository, https://github.com/matterport/Mask_RCNN
+
+2. Krylov, V., Streetview objectmapping, (2018), Github repository, https://github.com/vlkryl/streetview_objectmapping
+
+3. Krylov, V.A., Kenny, E., Dahyot, R. Automatic Discovery and Geotagging of Objects from Street View Imagery. *Remote Sensing*. 2018; 10(5):661.
+
+4. Laina, Iro and Rupprecht, Christian and Belagiannis, Vasileios and Tombari, Federico and Navab, Nassir, Deeper depth prediction with fully convolutional residual networks, (2016), Github repository, https://github.com/iro-cp/FCRN-DepthPrediction
