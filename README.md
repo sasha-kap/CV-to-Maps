@@ -7,7 +7,7 @@ The purpose of this project is to create a way to automatically geolocate object
 
 The project involves a pipeline that processes a dashcam camera video that has every video frame geotagged by the camera's GPS functionality, identifies all objects of interest across all video frames, geolocates those objects by assigning latitude and longitude values to each of those objects, and evaluates the results of geolocation against existing OSM data.
 
-For this project, a cross-country road trip video is selected and water tower is selected as the object of interest.  The input video is required for every frame to include both the GPS coordinates and the heading (i.e., viewing angle) of the camera.
+For this project, a cross-country road trip video was selected and water tower was selected as the object of interest.  The input video is required for every frame to include both the GPS coordinates and the heading (i.e., viewing angle) of the camera.
 
 ## Workflow
 
@@ -83,7 +83,7 @@ After calculating the centroids of each tower, a map like the one shown below ca
 
 ![map](./Images/QGIS_Map.png)
 
-Per analysis included in the notebook, in my particular case I ended up with 13 water towers tagged in the OSM database that had at least one video frame geolocated within 300 meters of that tower.
+Per investigation included in the notebook, in my particular case I ended up with 13 water towers tagged in the OSM database that had at least one video frame geolocated within 300 meters of that tower.
 
 6. **Object detection/image segmentation**
 
@@ -95,7 +95,7 @@ Only about 240 images were annotated and were split into train and validation se
 
 **CODE 1:** Mask_RCNN/samples/water_towers/tower.py
 
-This code was based on the sample Mask RCNN code provided at https://github.com/matterport/Mask_RCNN/tree/master/samples/balloon.  The code uses weights computed on COCO dataset with Mask RCNN model as a starting point to train a model to detect and segment water towers.  The pre-trained COCO weights were obtained from https://github.com/matterport/Mask_RCNN/releases/download/v2.0/mask_rcnn_coco.h5.  I used AWS to run training code: `python3 tower.py train --dataset=/path/to/tower/dataset --weights=coco`, with the following parameters for training configuration:
+This code was based on the sample Mask RCNN code provided at https://github.com/matterport/Mask_RCNN/tree/master/samples/balloon.  The code uses weights computed on COCO dataset with Mask RCNN model as a starting point to train a model to detect and segment water towers.  The pre-trained COCO weights were obtained from https://github.com/matterport/Mask_RCNN/releases/download/v2.0/mask_rcnn_coco.h5.  The code uses Keras with the TensorFlow backend.  I used AWS to run training code: `python3 tower.py train --dataset=/path/to/tower/dataset --weights=coco`, with the following parameters for training configuration:
 
 ```
 EPOCHS = 50
@@ -147,7 +147,7 @@ As explained in Krylov et al., objects observed in images can be geotagged via t
 - Object_mapping.ipynb also calls the object_mapping.py script within a loop to generate multiple detected tower positions that are then averaged.
 
 **CODE 3:** Check_Preliminary_Object_Positions.ipynb
-- Uses modified GoogleMapPlotter class from the gmplot package to plot initial tower positions calculated from camera position, camera bearing, and depth_estimates
+- Uses modified GoogleMapPlotter class from the gmplot package to plot initial tower positions calculated from camera position, camera bearing, and depth_estimates (requires obtaining a Google Maps API account)
 
 **CODE 4:** Plot_Coordinates_Using_Google_Maps.ipynb
 - Uses modified GoogleMapPlotter class from the gmplot package to plot both the actual positions of the camera as the car was driving and the geotagged position of the tower
