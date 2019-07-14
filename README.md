@@ -3,7 +3,7 @@ Travel Video Object Detection with OSM-Based Evaluation
 
 ## Purpose
 
-The purpose of this project is to create a way to automatically geolocate objects of interest in a dashcam camera video, so they could be added to the OpenStreetMap (OSM) database without manual geotagging by OSM volunteers.
+The purpose of this project is to create a way to automatically geolocate objects of interest observed and identified in a dashcam camera video, so they could be added to the OpenStreetMap (OSM) database without manual geotagging by OSM volunteers.
 
 The project involves a pipeline that processes a dashcam camera video that has every video frame geotagged by the camera's GPS functionality, identifies all objects of interest across all video frames, geolocates those objects by assigning latitude and longitude values to each of those objects, and evaluates the results of geolocation against existing OSM data.
 
@@ -83,6 +83,8 @@ After calculating the centroids of each tower, a map like the one shown below ca
 
 ![map](./Images/QGIS_Map.png)
 
+Per analysis included in the notebook, in my particular case I ended up with 13 water towers tagged in the OSM database that had at least one video frame geolocated within 300 meters of that tower.
+
 6. **Object detection/image segmentation**
 
 I first used [VIA (VGG Image Annotator)](http://www.robots.ox.ac.uk/~vgg/software/via) to annotate water tower images available for academic research and education purposes from the [Places365](http://places2.csail.mit.edu/download.html) dataset.  Places contains more than 10 million images comprising 400+ unique scene categories. The dataset features 5000 to 30,000 training images per class, consistent with real-world frequencies of occurrence. Using convolutional neural networks (CNN), Places dataset allows learning of deep scene features for various scene recognition tasks, with the goal to establish new state-of-the-art performances on scene-centric benchmarks.
@@ -127,6 +129,8 @@ Below is an example of splash applied to an image following the image segmentati
 
 7.  **Depth prediction**
 
+As explained in Krylov et al., objects observed in images can be geotagged via triangulation through a three-step process: (1) image segmentation using one fully convolutional neural network, (2) estimation of distance from the camera using another fully convolutional neural network (depth estimation step), and (3) object triangulation using a customer Markov Random Field model.  Image segmentation was completed in the previous step.  In the current step, we use the pixel-level labels from the image segmentation output as input to the depth estimation FCNN, which we implement using TensorFlow.
+
 **CODE 1:** Mask_RCNN/samples/water_towers/load_resize_detections_and_depth_predictions.ipynb
 - Exploration notebook investigating how to work with object detection (mask) and depth prediction arrays
 
@@ -150,8 +154,6 @@ Below is an example of splash applied to an image following the image segmentati
 
 **CODE 5:** Compare_Geotagging_to_OSM.ipynb
 - Queries OSM-tagged (true) coordinates of water tower that was used in geotagging code, then uses modified GoogleMapPlotter class from the gmplot package to plot the true water tower coordinates (from OSM), coordinates of the camera positions as the car was driving, tower positions calculated from camera position, camera bearing, and depth_estimates, and the averaged tower position calculated by running the detection code multiple times.
-
----
 
 ## References:
 
