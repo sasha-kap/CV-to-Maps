@@ -155,6 +155,12 @@ As explained in Krylov et al., objects observed in images can be geotagged via t
 **CODE 5:** Compare_Geotagging_to_OSM.ipynb
 - Queries OSM-tagged (true) coordinates of water tower that was used in geotagging code, then uses modified GoogleMapPlotter class from the gmplot package to plot the true water tower coordinates (from OSM), coordinates of the camera positions as the car was driving, tower positions calculated from camera position, camera bearing, and depth_estimates, and the averaged tower position calculated by running the detection code multiple times.
 
+Below is an example of the quality of geotagging performed by this code.  The red markers indicate locations of the camera frames that correctly detected a water tower.  The yellow marker indicates the OSM-based "true" location of the water tower, and the blue marker indicates the location obtained by this code.
+
+![geotagging example](./Images/Google_Maps_Screenshot.png)
+
+While the current iteration of the code did not provide a lot of detected object examples on which to test the geotagging code, the results suggest that the code can be used to at least initially flag real-world structures that have not yet been placed in the OSM database and that need human attention.
+
 ## References:
 
 1. Abdulla, W., Mask R-CNN for object detection and instance segmentation on Keras and TensorFlow, (2017), GitHub repository, https://github.com/matterport/Mask_RCNN
